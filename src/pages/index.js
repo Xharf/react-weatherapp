@@ -151,13 +151,21 @@ export default function Home(props) {
 							</Grid>
 						</Grid>
 					</Grid>
-					<Typography variant="subtitle1">
-						Last updated: {weather.current.last_updated}
-					</Typography>
-					<Typography variant="subtitle1" sx={{ textAlign: "center" }}>
-						Location {weather.location.name}, {weather.location.region},{" "}
-						{weather.location.country}
-					</Typography>
+					<Grid container>
+						<Grid item xs={12} textAlign="center">
+							<Typography variant="subtitle1">
+								Last updated: {weather.current.last_updated}
+							</Typography>
+						</Grid>
+					</Grid>
+					<Grid container>
+						<Grid item xs={12} textAlign="center">
+							<Typography variant="subtitle1" sx={{ textAlign: "center" }}>
+								Location {weather.location.name}, {weather.location.region},{" "}
+								{weather.location.country}
+							</Typography>
+						</Grid>
+					</Grid>
 				</Grid>
 				<ImageList
 					gap={8}

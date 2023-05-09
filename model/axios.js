@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const Axios = axios.create({
-	baseURL: "http://api.weatherapi.com/v1",
+	baseURL: "https://api.weatherapi.com/v1",
 });
 
 // Add a request interceptor
