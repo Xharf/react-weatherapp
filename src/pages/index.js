@@ -177,6 +177,7 @@ export default function Home(props) {
 							"repeat(auto-fill,minmax(160px,1fr)) !important",
 						gridAutoColumns: "minmax(160px, 1fr)",
 					}}
+					className="hide-scroll"
 				>
 					{forecast.forecast.forecastday[0].hour.map((item, index) => (
 						<Grid key={index} container>

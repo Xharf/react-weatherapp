@@ -2,6 +2,10 @@ import axios from "axios";
 
 const Axios = axios.create({
 	baseURL: "https://api.weatherapi.com/v1",
+	headers: {
+		"access-control-allow-origin": "*",
+		"Content-Type": "application/json",
+	},
 });
 
 // Add a request interceptor
