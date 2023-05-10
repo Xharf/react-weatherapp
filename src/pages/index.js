@@ -16,6 +16,7 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import AirIcon from "@mui/icons-material/Air";
 import Axios from "../../model/axios";
 import moment from "moment/moment";
+import Link from "next/link";
 
 export async function getStaticProps() {
 	return {
@@ -27,10 +28,9 @@ export async function getStaticProps() {
 
 export default function Home(props) {
 	const [initializing, setInitializing] = useState(true);
-	const [weather, setWeather] = useState({});
 	const [displayedLocation, setDisplayedLocation] = useState("");
 	const [location, setLocation] = useState("depok");
-	const [future, setFuture] = useState([]);
+	const [forecast, setForecast] = useState({});
 
 	const changeDisplayedLocationHandler = (value) => {
 		setDisplayedLocation(value);
@@ -44,44 +44,35 @@ export default function Home(props) {
 	}, [displayedLocation]);
 
 	useEffect(() => {
-		if (location) {
-			Axios.get(
-				`/current.json?key=${props.API_KEY}&lang=en&q=${location}`,
-			).then((res) => {
-				setWeather(res.data);
-				setInitializing(false);
-			});
-
-			Axios.get(
-				`/forecast.json?key=${props.API_KEY}&lang=en&q=${location}&days=3`,
-			).then((res) => {
-				setFuture(res.data.forecast.forecastday);
-			});
-		}
+		setInitializing(true);
+		Axios.get(
+			`/forecast.json?key=${props.API_KEY}&lang=en&q=${
+				location ? location : "depok"
+			}&days=1`,
+		).then((res) => {
+			setForecast(res.data);
+			setInitializing(false);
+		});
+		setInitializing(false);
 	}, []);
 
 	useEffect(() => {
-		if (location) {
-			Axios.get(
-				`/current.json?key=${props.API_KEY}&lang=en&q=${location}`,
-			).then((res) => {
-				setWeather(res.data);
-				setInitializing(false);
-			});
-
-			Axios.get(
-				`/forecast.json?key=${props.API_KEY}&lang=en&q=${location}&days=3`,
-			).then((res) => {
-				setFuture(res.data.forecast.forecastday);
-			});
-		}
+		setInitializing(true);
+		Axios.get(
+			`/forecast.json?key=${props.API_KEY}&lang=en&q=${
+				location ? location : "depok"
+			}&days=1`,
+		).then((res) => {
+			setForecast(res.data);
+			setInitializing(false);
+		});
 	}, [location]);
 
 	if (initializing) return <div>Loading...</div>;
 
 	return (
 		<>
-			<Container maxWidth="sm" sx={{ mt: 3 }}>
+			<Container maxWidth="sm" sx={{ mt: 3, minHeight: "100vh" }}>
 				<Grid container justifyContent="space-between" alignItems="center">
 					<Grid item xs={2} textAlign="center">
 						<LocationOnIcon />
@@ -104,20 +95,30 @@ export default function Home(props) {
 						></TextField>
 					</Grid>
 					<Grid item xs={2} textAlign="center">
-						<CalendarMonthIcon></CalendarMonthIcon>
+						<Link
+							href={{
+								pathname: "/forecast",
+								query: {
+									location: location ? location : "depok",
+								},
+							}}
+							style={{ textDecoration: "none", color: "black" }}
+						>
+							<CalendarMonthIcon></CalendarMonthIcon>
+						</Link>
 					</Grid>
 				</Grid>
 				<Grid container justifyContent="center">
 					<Grid item xs={12} textAlign="center">
 						<img
 							style={{ width: "40%" }}
-							src={weather.current.condition.icon}
+							src={forecast.current.condition.icon}
 							alt="Weather Icon"
 						/>
 					</Grid>
 					<Grid item xs={12} textAlign="center">
 						<Typography variant="subtitle2">
-							{weather.current.condition.text}
+							{forecast.current.condition.text}
 						</Typography>
 					</Grid>
 					<Grid item xs={12} textAlign="center">
@@ -133,7 +134,7 @@ export default function Home(props) {
 								</Grid>
 								<Grid>
 									<Typography variant="subtitle2">
-										{weather.current.wind_kph} Km/h
+										{forecast.current.wind_kph} Km/h
 									</Typography>
 								</Grid>
 							</Grid>
@@ -145,7 +146,7 @@ export default function Home(props) {
 								</Grid>
 								<Grid>
 									<Typography variant="subtitle2">
-										{weather.current.humidity}%
+										{forecast.current.humidity}%
 									</Typography>
 								</Grid>
 							</Grid>
@@ -154,15 +155,15 @@ export default function Home(props) {
 					<Grid container>
 						<Grid item xs={12} textAlign="center">
 							<Typography variant="subtitle1">
-								Last updated: {weather.current.last_updated}
+								Last updated: {forecast.current.last_updated}
 							</Typography>
 						</Grid>
 					</Grid>
 					<Grid container>
 						<Grid item xs={12} textAlign="center">
 							<Typography variant="subtitle1" sx={{ textAlign: "center" }}>
-								Location {weather.location.name}, {weather.location.region},{" "}
-								{weather.location.country}
+								Location {forecast.location.name}, {forecast.location.region},{" "}
+								{forecast.location.country}
 							</Typography>
 						</Grid>
 					</Grid>
@@ -177,11 +178,11 @@ export default function Home(props) {
 						gridAutoColumns: "minmax(160px, 1fr)",
 					}}
 				>
-					{future.map((item, index) => (
+					{forecast.forecast.forecastday[0].hour.map((item, index) => (
 						<Grid key={index} container>
 							<Grid item xs={12} sx={{ textAlign: "center", mb: 2 }}>
 								<Typography variant="body1">
-									{moment(item.date).format("ddd, hA")}
+									{moment(item.time).format("HHA")}
 								</Typography>
 							</Grid>
 							<Grid item xs={12}>
@@ -197,15 +198,15 @@ export default function Home(props) {
 										<CardMedia
 											component="img"
 											width="100"
-											image={item.day.condition.icon}
-											alt={item.day.condition.text}
+											image={item.condition.icon}
+											alt={item.condition.text}
 										/>
 										<CardContent>
 											<Typography gutterBottom variant="h5" component="div">
-												{item.day.avgtemp_c} °C
+												{item.temp_c} °C
 											</Typography>
 											<Typography variant="subtitle1" color="text.secondary">
-												UV {item.day.uv}
+												UV {item.uv}
 											</Typography>
 										</CardContent>
 									</CardActionArea>
